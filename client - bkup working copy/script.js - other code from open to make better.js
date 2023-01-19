@@ -58,13 +58,17 @@ function chatStripe (isAi, value, uniqueId) {
   )
 }
 
+//create a global variable to store previous inputs and responses
+let previousConversations = [];
+
 const handleSubmit = async (e) => {
   e.preventDefault();
-
+  
   const data = new FormData(form);
+  const prompt = data.get('prompt');
 
-  //user's schatstripe
-  chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
+  //user's chatstripe
+  chatContainer.innerHTML += chatStripe(false, prompt);
 
   form.reset();
 
@@ -76,40 +80,63 @@ const handleSubmit = async (e) => {
 
   const messageDiv = document.getElementById(uniqueId);
 
-  loader(messageDiv);
+  //check if there is a previous conversation that matches the current prompt
+  let previousResponse = '';
+  previousConversations.forEach(conversation => {
+    if(conversation.prompt === prompt) {
+      previousResponse = conversation.response;
+    }
+  });
 
-  // fetch data from server -> bot's response
-
-  const response = await fetch('https://starr-codex.onrender.com', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      prompt: data.get('prompt')
-    })
-  })
-
-  clearInterval(loadInterval);
-  messageDiv.innerHTML = '';
-
-  if(response.ok) {
-    const data = await response.json();
-    const parsedData = data.bot.trim();
-
-    typeText(messageDiv, parsedData);
+  //if there is a previous response, use that instead of making a request to the server
+  if(previousResponse) {
+    clearInterval(loadInterval);
+    messageDiv.innerHTML = '';
+    typeText(messageDiv, previousResponse);
   } else {
-    const err = await response.text();
+    //fetch data from server -> bot's response
+    const response = await fetch('https://starr-codex.onrender.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: prompt
+      })
+    })
 
-    messageDiv.innerHTML = "Something went wrong";
+    clearInterval(loadInterval);
+    messageDiv.innerHTML = '';
 
-    alert(err);
+    if(response.ok) {
+      const data = await response.json();
+      const parsedData = data.bot.trim();
+
+      //store the bot's response in the previousConversations array
+      //previousConversations.push({prompt: prompt, response: parsedData});
+
+      previousResponse = parsedData;
+      previousConversations[prompt] = parsedData;
+
+      typeText(messageDiv, parsedData);
+    } else {
+      const err = await response.text();
+
+      messageDiv.innerHTML = "Something went wrong";
+
+      alert(err);
+    }
   }
+}
+
+function alwaysPushUp() {
+  chatContainer.scrollTop = 0;
 }
 
 form.addEventListener('submit', handleSubmit);
 form.addEventListener('keyup', (e) => {
-  if (e.keyCode === 13) {
-    handleSubmit(e);
-  }
-})
+if (e.keyCode === 13) {
+  handleSubmit(e);
+  alwaysPushUp();
+}
+});
