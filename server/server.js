@@ -12,9 +12,11 @@ const configuration = new Configuration({
 });
 
 //added to get rid of online 404 error on 19.01.2023
+/*
 const headers = {
     'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
   };
+*/
 
 const openai = new OpenAIApi(configuration);
 
@@ -43,6 +45,12 @@ app.post('/', async (req, res) => {
             presence_penalty: 0,
             //stop: ["\"\"\""]
         });
+
+//added to get rid of online 404 error on 19.01.2023
+        const headers = {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          };
+
 
         res.status(200).send({
             bot: response.data.choices[0].text
