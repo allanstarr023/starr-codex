@@ -1,8 +1,8 @@
 import bot from './assets/bot.svg';
 import user from './assets/user.svg';
-import * as dotenv from 'dotenv'; // added 20.01.23
+//import * as dotenv from 'dotenv'; // added 20.01.23
 
-dotenv.config(); // added 20.01.23
+//dotenv.config(); // added 20.01.23
 
 const form = document.querySelector('form');
 const chatContainer = document.querySelector('#chat_container');
