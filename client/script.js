@@ -83,7 +83,8 @@ const handleSubmit = async (e) => {
   const response = await fetch('https://starr-codex.onrender.com', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` //added 20.01.23
     },
     body: JSON.stringify({
       prompt: data.get('prompt')
