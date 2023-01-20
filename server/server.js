@@ -36,7 +36,6 @@ app.post('/', async (req, res) => {
 
         const response = await openai.createCompletion({
             model: "text-davinci-003",
-            //model: "code-davinci-002",
             prompt:`${prompt}`,
             temperature: 0.5,
             max_tokens: 3000,
@@ -45,13 +44,6 @@ app.post('/', async (req, res) => {
             presence_penalty: 0,
             //stop: ["\"\"\""]
         });
-
-//added to get rid of online 404 error on 19.01.2023
-        const headers = {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          };
-
-
         res.status(200).send({
             bot: response.data.choices[0].text
         })
